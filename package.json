@@ -20,7 +20,8 @@
   "keywords": [
     "node",
     "heroku",
-    "express"
+    "express",
+    "socket.io"
   ],
   "license": "MIT"
 }
