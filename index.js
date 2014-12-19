@@ -1,50 +1,37 @@
+// Import the Express module
+var express = require('express');
+
+// Import the 'path' module (packaged with Node.js)
+var path = require('path');
+
+// Create a new instance of Express
+var app = express();
+
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
-var server;
 
-server = http.createServer(function(req, res){
-    // your normal server code
-    var path = url.parse(req.url).pathname;
-    switch (path){
-        case '/':
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.write('<h1>Hello! Try the <a href="/test.html">Test page</a></h1>');
-            res.end();
-            break;
-        case '/test.html':
-            fs.readFile(__dirname + path, function(err, data){
-                if (err){ 
-                    return send404(res);
-                }
-                res.writeHead(200, {'Content-Type': path == 'json.js' ? 'text/javascript' : 'text/html'});
-                res.write(data, 'utf8');
-                res.end();
-            });
-        break;
-        default: send404(res);
-    }
-}),
+// Create a simple Express application
+app.configure(function() {
+    // Turn down the logging activity
+    app.use(express.logger('dev'));
 
-//fs.writeFile('message.txt', '', function (err) {
-//  if (err) throw err;
-//  console.log('It\'s saved!');
-//});
+    // Serve static html, js, css, and image files from the 'public' directory
+    app.use(express.static(path.join(__dirname,'public')));
+    
+    
+});
 
-send404 = function(res){
-    res.writeHead(404);
-    res.write('404');
-    res.end();
-};
+// Create a Node.js based http server on port 8080
+var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 
-server.listen(5000);
-
-// use socket.io
+// Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
-//turn off debug
-io.set('log level', 1);
+// Reduce the logging output of Socket.IO
+io.set('log level',1);
 
+// Listen for Socket.IO Connections. Once connected, start the game logic.
 // define interactions with client
 io.sockets.on('connection', function(socket){
     //send data to client
